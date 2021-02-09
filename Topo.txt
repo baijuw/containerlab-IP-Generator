@@ -1,0 +1,91 @@
+name: clos
+
+topology:
+  kinds:
+    srl:
+      type: ixrd1
+      image: srlinux
+      license: license.key
+    linux:
+       image: centos
+  nodes:
+    leaf1:
+      kind: srl
+    leaf2:
+      kind: srl
+    leaf3:
+      kind: srl
+    leaf4:
+      kind: srl
+    leaf5:
+      kind: srl
+    leaf6:
+      kind: srl
+    spine1:
+      kind: srl
+      type: ixr6
+      image: srlinux
+      license: license.key
+    spine2:
+      kind: srl
+      type: ixr6
+      image: srlinux
+      license: license.key
+    supsp1:
+      kind: srl
+      type: ixr6
+      image: srlinux
+      license: license.key
+    supsp2:
+      kind: srl
+      type: ixr6
+      image: srlinux
+      license: license.key
+    server1:
+      kind: linux
+    server2:
+      kind: linux
+    server3:
+      kind: linux
+    server4:
+      kind: linux
+    server5:
+      kind: linux
+    server6:
+      kind: linux
+    grafana:
+      kind: linux
+      image: grafana/grafana
+      ports:
+         - 3000:3000
+    influxDB:
+      kind: linux
+      image: influxdb
+      ports:
+         - 8086:8086
+    telegraf:
+      kind: linux
+      image: telegraf
+  links:
+    - endpoints: ["spine1:e1-1", "leaf1:e1-1"]
+    - endpoints: ["spine1:e1-2", "leaf2:e1-1"]
+    - endpoints: ["spine1:e1-3", "leaf3:e1-1"]
+    - endpoints: ["spine1:e1-4", "leaf4:e1-1"]
+    - endpoints: ["spine1:e1-5", "leaf5:e1-1"]
+    - endpoints: ["spine1:e1-6", "leaf6:e1-1"]
+    - endpoints: ["spine1:e1-30", "supsp1:e1-1"]
+    - endpoints: ["spine1:e1-31", "supsp2:e1-1"]
+    - endpoints: ["spine2:e1-1", "leaf1:e1-2"]
+    - endpoints: ["spine2:e1-2", "leaf2:e1-2"]
+    - endpoints: ["spine2:e1-3", "leaf3:e1-2"]
+    - endpoints: ["spine2:e1-4", "leaf4:e1-2"]
+    - endpoints: ["spine2:e1-5", "leaf5:e1-2"]
+    - endpoints: ["spine2:e1-6", "leaf6:e1-2"]
+    - endpoints: ["spine2:e1-30", "supsp1:e1-2"]
+    - endpoints: ["spine2:e1-31", "supsp2:e1-2"]
+    - endpoints: ["server1:eth1", "leaf1:e1-10"]
+    - endpoints: ["server2:eth1", "leaf2:e1-10"]
+    - endpoints: ["server3:eth1", "leaf3:e1-10"]
+    - endpoints: ["server4:eth1", "leaf4:e1-10"]
+    - endpoints: ["server5:eth1", "leaf5:e1-10"]
+    - endpoints: ["server6:eth1", "leaf6:e1-10"]

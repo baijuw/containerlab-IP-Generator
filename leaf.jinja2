@@ -1,0 +1,165 @@
+{
+    "srl_nokia-interfaces:interface": [
+{% for INT in srl_input.interfaces %}
+        {
+            "name": "{{ INT.name }}",
+            "admin-state": "enable",
+            "description": "{{ INT.comments }}",
+            "subinterface": [
+                {
+                    "index": 1,
+                    "admin-state": "enable",
+                    "ipv4": {
+                        "allow-directed-broadcast": false,
+                        "address": [
+                            {
+                                "ip-prefix": "{{ INT.ip }}"
+                            }
+                        ],
+                        "srl_nokia-interfaces-nbr:arp": {
+                            "timeout": 14400
+                        }
+                    }
+                }
+            ],
+            "srl_nokia-sflow:sflow": {
+                "admin-state": "enable"
+            }
+        }{% if not loop.last %}, {% endif %}
+{% endfor %}
+    ],
+    "srl_nokia-network-instance:network-instance": [
+        {
+            "name": "{{ srl_input.network_instance }}",
+            "admin-state": "enable",
+            "interface": [
+{% for INT in srl_input.interfaces %}
+                {
+                    "name": "{{ INT.name }}.1"
+                }{% if not loop.last %}, {% endif %}
+{% endfor %}
+            ],
+            "protocols": {
+                "srl_nokia-bgp:bgp": {
+                    "admin-state": "enable",
+                    "autonomous-system": {{ srl_input.bgp.as}},
+                    "local-preference": 100,
+                    "router-id": "{{ srl_input.bgp.rid }}",
+                    "as-path-options": {
+                        "allow-own-as": 0,
+                        "remove-private-as": {
+                            "mode": "disabled",
+                            "leading-only": false,
+                            "ignore-peer-as": false
+                        }
+                    },
+                    "convergence": {
+                        "min-wait-to-advertise": 0
+                    },
+                    "dynamic-neighbors": {
+                        "accept": {
+                            "max-sessions": 0
+                        }
+                    },
+                    "ebgp-default-policy": {
+                        "import-reject-all": false,
+                        "export-reject-all": false
+                    },
+                    "failure-detection": {
+                        "enable-bfd": false,
+                        "fast-failover": true
+                    },
+                    "graceful-restart": {
+                        "admin-state": "disable",
+                        "stale-routes-time": 360
+                    },
+                    "group": [
+{% for GRP in srl_input.bgp.group %}
+                        {
+                            "group-name": "spineGrp",
+                            "admin-state": "enable",
+                            "next-hop-self": false,
+                            "peer-as": {{ GRP.peer_as }},
+                            "ipv4-unicast": {
+                                "prefix-limit": {
+                                    "max-received-routes": 4294967295,
+                                    "warning-threshold-pct": 90
+                                }
+                            },
+                            "ipv6-unicast": {
+                                "prefix-limit": {
+                                    "max-received-routes": 4294967295,
+                                    "warning-threshold-pct": 90
+                                }
+                            },
+                            "send-default-route": {
+                                "ipv4-unicast": false,
+                                "ipv6-unicast": false
+                            },
+                            "timers": {
+                                "connect-retry": 120,
+                                "hold-time": 90,
+                                "minimum-advertisement-interval": 5
+                            },
+                            "transport": {
+                                "passive-mode": false
+                            }
+                        }{% if not loop.last %}, {% endif %}
+{% endfor %}
+                    ],
+                    "ipv4-unicast": {
+                        "admin-state": "enable",
+                        "advertise-ipv6-next-hops": false,
+                        "receive-ipv6-next-hops": false,
+                        "convergence": {
+                            "max-wait-to-advertise": 0
+                        },
+                        "multipath": {
+                            "allow-multiple-as": true,
+                            "max-paths-level-1": 1,
+                            "max-paths-level-2": 1
+                        }
+                    },
+                    "ipv6-unicast": {
+                        "admin-state": "disable",
+                        "convergence": {
+                            "max-wait-to-advertise": 0
+                        },
+                        "multipath": {
+                            "allow-multiple-as": true,
+                            "max-paths-level-1": 1,
+                            "max-paths-level-2": 1
+                        }
+                    },
+                    "neighbor": [
+{% for NEI in srl_input.bgp.neighbor %}
+                        {
+                            "peer-address": "{{ NEI.ip }}",
+                            "admin-state": "enable",
+                            "peer-group": "spineGrp"
+                        }{% if not loop.last %}, {% endif %}
+{% endfor %}
+                    ],
+                    "preference": {
+                        "ebgp": 170,
+                        "ibgp": 170
+                    },
+                    "route-advertisement": {
+                        "rapid-withdrawal": false,
+                        "wait-for-fib-install": true
+                    },
+                    "route-reflector": {
+                        "client": false
+                    },
+                    "send-community": {
+                        "standard": true,
+                        "large": true
+                    },
+                    "transport": {
+                        "tcp-mss": 1024
+                    }
+                }
+            }
+        }
+    ]
+}

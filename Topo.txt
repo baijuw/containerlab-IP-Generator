@@ -1,91 +1,96 @@
-name: clos
+name: NDK
 
 topology:
   kinds:
+    vr-sros:
+      type: sr-1
+      image: vr-sros
+      license: sr-license.key
     srl:
-      type: ixrd1
+      type: ixrd3
       image: srlinux
       license: license.key
-    linux:
-       image: centos
   nodes:
-    leaf1:
+    L1:
       kind: srl
-    leaf2:
+      env:
+        level: leaf
+        bgpas: 65001
+        rid: 10.0.0.1
+    L2:
       kind: srl
-    leaf3:
+      env:
+        level: leaf
+        bgpas: 65002
+        rid: 10.0.0.2
+    L3:
       kind: srl
-    leaf4:
+      env:
+        level: leaf
+        bgpas: 65003
+        rid: 10.0.0.3
+    L4:
       kind: srl
-    leaf5:
+      env:
+        level: leaf
+        bgpas: 65004
+        rid: 10.0.0.4
+    L5:
       kind: srl
-    leaf6:
+      env:
+        level: leaf
+        bgpas: 65005
+        rid: 10.0.0.5
+    S1:
       kind: srl
-    spine1:
-      kind: srl
-      type: ixr6
       image: srlinux
       license: license.key
-    spine2:
+      env:
+        level: spine
+        bgpas: 65101
+        rid: 10.0.0.101
+    S2:
       kind: srl
-      type: ixr6
       image: srlinux
       license: license.key
-    supsp1:
-      kind: srl
-      type: ixr6
-      image: srlinux
-      license: license.key
-    supsp2:
-      kind: srl
-      type: ixr6
-      image: srlinux
-      license: license.key
-    server1:
+      env:
+        level: spine
+        bgpas: 65101
+        rid: 10.0.0.102
+    CE1:
+      kind: vr-sros
+      env:
+       BOOT_DELAY: 15
+    CE2:
+      kind: vr-sros
+      env:
+       BOOT_DELAY: 30
+    CE3:
+      kind: vr-sros
+      env:
+       BOOT_DELAY: 30
+    centos:
+       kind: linux
+       image: centos
+    ansible:
       kind: linux
-    server2:
-      kind: linux
-    server3:
-      kind: linux
-    server4:
-      kind: linux
-    server5:
-      kind: linux
-    server6:
-      kind: linux
-    grafana:
-      kind: linux
-      image: grafana/grafana
-      ports:
-         - 3000:3000
-    influxDB:
-      kind: linux
-      image: influxdb
-      ports:
-         - 8086:8086
-    telegraf:
-      kind: linux
-      image: telegraf
+      image: centos
+      binds:
+         - ansible:/root/ansible
   links:
-    - endpoints: ["spine1:e1-1", "leaf1:e1-1"]
-    - endpoints: ["spine1:e1-2", "leaf2:e1-1"]
-    - endpoints: ["spine1:e1-3", "leaf3:e1-1"]
-    - endpoints: ["spine1:e1-4", "leaf4:e1-1"]
-    - endpoints: ["spine1:e1-5", "leaf5:e1-1"]
-    - endpoints: ["spine1:e1-6", "leaf6:e1-1"]
-    - endpoints: ["spine1:e1-30", "supsp1:e1-1"]
-    - endpoints: ["spine1:e1-31", "supsp2:e1-1"]
-    - endpoints: ["spine2:e1-1", "leaf1:e1-2"]
-    - endpoints: ["spine2:e1-2", "leaf2:e1-2"]
-    - endpoints: ["spine2:e1-3", "leaf3:e1-2"]
-    - endpoints: ["spine2:e1-4", "leaf4:e1-2"]
-    - endpoints: ["spine2:e1-5", "leaf5:e1-2"]
-    - endpoints: ["spine2:e1-6", "leaf6:e1-2"]
-    - endpoints: ["spine2:e1-30", "supsp1:e1-2"]
-    - endpoints: ["spine2:e1-31", "supsp2:e1-2"]
-    - endpoints: ["server1:eth1", "leaf1:e1-10"]
-    - endpoints: ["server2:eth1", "leaf2:e1-10"]
-    - endpoints: ["server3:eth1", "leaf3:e1-10"]
-    - endpoints: ["server4:eth1", "leaf4:e1-10"]
-    - endpoints: ["server5:eth1", "leaf5:e1-10"]
-    - endpoints: ["server6:eth1", "leaf6:e1-10"]
+    - endpoints: ["S1:e1-3", "L1:e1-3"]
+    - endpoints: ["S1:e1-4", "L2:e1-3"]
+    - endpoints: ["S1:e1-5", "L3:e1-3"]
+    - endpoints: ["S1:e1-6", "L4:e1-3"]
+    - endpoints: ["S1:e1-7", "L5:e1-3"]
+    - endpoints: ["S2:e1-3", "L1:e1-4"]
+    - endpoints: ["S2:e1-4", "L2:e1-4"]
+    - endpoints: ["S2:e1-5", "L3:e1-4"]
+    - endpoints: ["S2:e1-6", "L4:e1-4"]
+    - endpoints: ["S2:e1-7", "L5:e1-4"]
+    - endpoints: ["CE1:eth1","L1:e1-10"]
+    - endpoints: ["CE2:eth1","L1:e1-11"]
+    - endpoints: ["CE2:eth2","L2:e1-11"]
+    - endpoints: ["CE3:eth1","L4:e1-10"]
+    - endpoints: ["centos:eth1","L4:e1-11"]
+    - endpoints: ["centos:eth2","L5:e1-11"]
